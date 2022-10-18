@@ -1,10 +1,20 @@
-FROM debian:bullseye-slim AS openblas
+FROM debian:bullseye-slim AS base
 
 RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-    make gcc gfortran \
+ && apt-get install -y csh gfortran \
  && apt-get -y clean \
  && rm -rf /var/lib/apt/lists/*
+
+
+FROM base AS builder-base
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends make gcc \
+ && apt-get -y clean \
+ && rm -rf /var/lib/apt/lists/*
+
+
+FROM builder-base AS openblas
 
 ARG OPENBLAS=0.3.21
 
@@ -19,32 +29,22 @@ RUN echo "\n\n\nExtracting OpenBLAS\n\n\n" \
 
 WORKDIR /opt/OpenBLAS
 
-RUN make -j`grep -c ^processor /proc/cpuinfo` BINARY=64 INTERFACE64=1
+RUN make -j`grep -c ^processor /proc/cpuinfo` BINARY=64 INTERFACE64=1 USE_THREAD=0
 
 
-
-FROM debian:bullseye-slim AS base
-
-RUN apt-get update \
- && apt-get install -y csh gfortran \
- && apt-get -y clean \
- && rm -rf /var/lib/apt/lists/*
-
-RUN mkdir -p /usr/lib/openblas
-COPY --from=openblas /opt/OpenBLAS/libopenblas.* /usr/lib/openblas/
-
-
-
-FROM base AS builder
+FROM builder-base AS gamess
 
 WORKDIR /usr/local/bin/
 
 RUN apt-get update \
- && apt-get install -y python3 python3-pip make gcc \
+ && apt-get install -y python3 python3-pip \
  && apt-get -y clean \
  && rm -rf /var/lib/apt/lists/*
 
-RUN export PATH=$PATH:/usr/bin/
+RUN pip install Jinja2
+
+RUN mkdir -p /usr/lib/openblas
+COPY --from=openblas /opt/OpenBLAS/libopenblas.* /usr/lib/openblas/
 
 COPY gamess-current.tar.gz gamess.tar.gz
 
@@ -53,8 +53,6 @@ RUN echo "\n\n\nExtracting GAMESS\n\n\n" \
    && rm -rf gamess.tar.gz \
    && cd /usr/local/bin/gamess \
    && mkdir -p object
-
-RUN pip install Jinja2
 
 WORKDIR /usr/local/bin/gamess
 
@@ -66,13 +64,17 @@ RUN ./bin/create-install-info.py \
       --mathlib_path=/usr/lib/openblas \
       --rungms
 
-RUN make -j`grep -c ^processor /proc/cpuinfo`||true
+RUN make -j`grep -c ^processor /proc/cpuinfo` || : && make -j`grep -c ^processor /proc/cpuinfo` || :
 
 FROM base
 
 WORKDIR /usr/local/bin/gamess
 
-COPY --from=builder /usr/local/bin/gamess /usr/local/bin/gamess
+RUN mkdir -p /usr/lib/openblas
+COPY --from=openblas /opt/OpenBLAS/libopenblas.* /usr/lib/openblas/
+COPY --from=gamess /usr/local/bin/gamess /usr/local/bin/gamess
+
+RUN sed -ir 's/$GMSPATH/$GMS_PATH/g' rungms
 
 RUN rm -rf /usr/local/bin/gamess/docs-*.txt; \
     rm -rf /usr/local/bin/gamess/*.md; \

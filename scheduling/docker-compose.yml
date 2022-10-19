@@ -9,6 +9,7 @@ services:
     build: .
     environment:
       - TEMP_DIR=/workspace
+      - API_KEY
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - workspace:/workspace

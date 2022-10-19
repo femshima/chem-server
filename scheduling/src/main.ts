@@ -1,8 +1,24 @@
 import crypto from 'crypto';
 import { Server } from 'socket.io';
+import { env } from './env';
 import { Base, Gamess } from './jobs';
 
 const io = new Server();
+
+const isValidToken = (token: string): boolean => {
+  if (token === env.apiKey) {
+    return true;
+  } else {
+    return false;
+  }
+};
+io.use((socket, next) => {
+  const token = socket.handshake.auth['token'] as unknown;
+  if (typeof token === 'string' && isValidToken(token)) {
+    return next();
+  }
+  return next(new Error('authentication error'));
+});
 
 io.on('connection', (socket) => {
   const jobs = new Map<string, Base>();

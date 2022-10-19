@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]; then
+  echo "Please provide an id" 1>&2
+  exit 1
+fi
+
+/usr/local/bin/gamess/rungms-dev "/home/gamess/$1/gms.inp" \
+  00 `grep -c ^processor /proc/cpuinfo` \
+  &> "/home/gamess/$1/gms.out"
+
+cp /usr/local/bin/gamess/restart/* "/home/gamess/$1/"

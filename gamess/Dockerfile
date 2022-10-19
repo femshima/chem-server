@@ -91,4 +91,11 @@ RUN rm -rf /usr/local/bin/gamess/docs-*.txt; \
     rm -rf /usr/local/bin/gamess/tests; \
     rm -rf /usr/local/bin/gamess/exam*.log;
 
+COPY gms-docker /usr/local/bin/gms-docker
+
+RUN chmod +x /usr/local/bin/gms-docker
+
 RUN cat /usr/local/bin/gamess/install.info
+
+ENTRYPOINT [ "/usr/local/bin/gms-docker" ]
+

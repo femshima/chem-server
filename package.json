@@ -8,9 +8,5 @@
   },
   "scripts": {
     "prepare": "husky install"
-  },
-  "dependencies": {
-    "eslint": "^8.25.0",
-    "prettier": "^2.7.1"
   }
 }

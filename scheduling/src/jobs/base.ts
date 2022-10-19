@@ -36,7 +36,7 @@ export default abstract class BaseJobExecuter<
   }
   public abstract start(): Promise<void>;
   public abstract cancel(): Promise<void> | void;
-  public async reportOutput(): Promise<void> {
+  public async getOutput(): Promise<Record<string, string | undefined>> {
     const result = await Promise.all(
       this.outputFiles.map<Promise<[string, string | undefined]>>(
         async (filename) => {
@@ -45,16 +45,15 @@ export default abstract class BaseJobExecuter<
               encoding: 'utf-8',
             })
             .catch(() => undefined);
-          console.log(filename, content)
           return [filename, content];
         }
       )
     );
-    this.socket.emit('end', this.uniqueId, Object.fromEntries(result));
-    await fs.rm(`${this.filepath}`, { recursive: true, force: true })
+    await fs.rm(`${this.filepath}`, { recursive: true, force: true });
+    return Object.fromEntries(result);
   }
 
   protected get filepath(): string {
-    return path.join(env.temporaryDirectory, this.uniqueId)
+    return path.join(env.temporaryDirectory, this.uniqueId);
   }
 }

@@ -42,12 +42,19 @@ io.on('connection', (socket) => {
       jobs.set(id, calc);
       cb(id);
       await calc.start().catch((e) => console.error(e));
-      await calc.reportOutput();
+      socket.emit('end', id, await calc.getOutput());
+      jobs.delete(id);
     }
   );
 
   socket.on('cancel', async (id: string) => {
     await jobs.get(id)?.cancel();
+  });
+
+  socket.on('disconnect', async () => {
+    for (const job of jobs.values()) {
+      await job.cancel();
+    }
   });
 });
 

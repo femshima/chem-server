@@ -1,0 +1,16 @@
+{
+  "workspaces": [
+    "scheduling"
+  ],
+  "devDependencies": {
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.3"
+  },
+  "scripts": {
+    "prepare": "husky install"
+  },
+  "dependencies": {
+    "eslint": "^8.25.0",
+    "prettier": "^2.7.1"
+  }
+}

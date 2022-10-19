@@ -10,6 +10,7 @@ export const env = readenv({
     from: 'MONGO_CONNECTION_STRING',
   },
   temporaryDirectory: {
+    from: 'TEMP_DIR',
     default: '/tmp',
   },
   production: {

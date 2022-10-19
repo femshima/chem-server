@@ -1,6 +1,7 @@
 {
   "workspaces": [
-    "scheduling"
+    "scheduling",
+    "scheduling-client"
   ],
   "devDependencies": {
     "husky": "^8.0.1",

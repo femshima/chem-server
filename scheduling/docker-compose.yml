@@ -1,0 +1,13 @@
+version: "3"
+services:
+  scheduling:
+    build: .
+    environment:
+      - MONGO_CONNECTION_STRING=mongodb:27017/agenda
+    links:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"

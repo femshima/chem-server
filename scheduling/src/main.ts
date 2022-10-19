@@ -1,16 +1,11 @@
-import Agenda, { Job } from 'agenda';
-import { env } from './env';
 import crypto from 'crypto';
 import { Server } from 'socket.io';
 import { Base, Gamess } from './jobs';
 
-const agenda = new Agenda({ db: { address: env.mongoConnectionString } });
-
 const io = new Server();
 
-const jobs = new Map<string, Base>();
-
 io.on('connection', (socket) => {
+  const jobs = new Map<string, Base>();
   socket.on(
     'start',
     async (
@@ -20,11 +15,14 @@ io.on('connection', (socket) => {
     ) => {
       if (typeof cb !== 'function') return;
       if (typeof calcType !== 'string') {
-        cb(undefined, 'calcType must be string')
+        cb(undefined, 'calcType must be string');
         return;
       }
-      if (typeof input !== 'object' || !Object.values(input).every(i => typeof i === 'string')) {
-        cb(undefined, 'inputs must be string')
+      if (
+        typeof input !== 'object' ||
+        !Object.values(input).every((i) => typeof i === 'string')
+      ) {
+        cb(undefined, 'inputs must be string');
         return;
       }
       const id = crypto.randomUUID();
@@ -42,8 +40,9 @@ io.on('connection', (socket) => {
         return;
       }
       jobs.set(id, calc);
-      cb(id)
-      await agenda.now('exec', { id });
+      cb(id);
+      await calc.start().catch((e) => console.error(e));
+      await calc.reportOutput();
     }
   );
 
@@ -52,15 +51,4 @@ io.on('connection', (socket) => {
   });
 });
 
-agenda.define('exec', { concurrency: 1 }, async (job: Job<{ id?: string }>) => {
-  const { id } = job.attrs.data ?? {};
-  if (typeof id !== 'string') return;
-  const calc = jobs.get(id)
-  if (!calc) return;
-
-  await calc.start().catch((e) => console.error(e));
-  await calc.reportOutput();
-});
-
-await agenda.start();
 io.listen(3000);

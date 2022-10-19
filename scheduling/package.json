@@ -28,7 +28,6 @@
   },
   "dependencies": {
     "@cm-ayf/readenv": "^1.2.0",
-    "agenda": "^4.3.0",
     "socket.io": "^4.5.3"
   }
 }

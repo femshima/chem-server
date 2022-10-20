@@ -1,33 +1,35 @@
 import { io } from 'socket.io-client';
+import { env } from './env';
+import fs from 'fs/promises';
 
-const socket = io('http://localhost:3000', {
+const socket = io(env.apiEndpoint, {
   auth: {
-    token: 'keyboard_cat',
+    token: env.apiKey,
   },
 });
+
+const filepath = process.argv[2];
+if (typeof filepath !== 'string')
+  throw new Error('Please specify input file path');
 
 socket.emit(
   'start',
   'GAMESS',
   {
-    'gms.inp':
-      ' $CONTRL ICHARG=0 MULT=1 SCFTYP=RHF RUNTYP=OPTIMIZE\n' +
-      '  COORD=UNIQUE MAXIT=200 NZVAR=0 DFTTYP=B3LYPV1R\n' +
-      ' $END\n' +
-      ' $SYSTEM MWORDS=100 $END\n' +
-      ' $STATPT NSTEP=100 HSSEND=.F. $END\n' +
-      ' $SCF DIRSCF=.T. $END\n' +
-      ' $BASIS GBASIS=N31 NGAUSS=6 NDFUNC=1 $END\n' +
-      ' $DATA\n' +
-      'Winmostar\n' +
-      'C1\n' +
-      'O    8.0    0.0000000000    0.0000000000    0.0000000000\n' +
-      'O    8.0    1.3200000000    0.0000000000    0.0000000000\n' +
-      ' $END\n',
+    'gms.inp': await fs.readFile(filepath, { encoding: 'utf-8' }),
   },
   (id: string, err: string) => console.log(id, err)
 );
 
-socket.on('end', (id, res) => {
-  console.log(id, res);
-});
+socket.on(
+  'end',
+  async (id: string, res: Record<string, string | undefined>) => {
+    console.log('Completed. id:', id);
+    for (const [name, content] of Object.entries(res)) {
+      if (typeof content === 'string') {
+        await fs.writeFile(name, content);
+      }
+    }
+    process.exit(0);
+  }
+);

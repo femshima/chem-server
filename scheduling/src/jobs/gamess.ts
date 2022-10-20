@@ -1,4 +1,3 @@
-import fs from 'fs/promises';
 import { exec } from 'child_process';
 import BaseJobExecuter from './base';
 

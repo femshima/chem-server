@@ -5,7 +5,7 @@ volumes:
     name: workspace
 
 services:
-  scheduling:
+  server:
     build: .
     environment:
       - TEMP_DIR=/workspace

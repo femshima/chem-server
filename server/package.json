@@ -1,7 +1,7 @@
 {
-  "name": "chem-server-scheduler",
+  "name": "chem-server",
   "version": "1.0.0",
-  "description": "Job scheduling component for chem-server",
+  "description": "Remote job execution component for chem-server",
   "main": "dist/main.cjs",
   "type": "module",
   "scripts": {

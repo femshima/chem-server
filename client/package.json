@@ -1,7 +1,7 @@
 {
-  "name": "chem-server-scheduler-client",
+  "name": "chem-server-client",
   "version": "1.0.0",
-  "description": "Job scheduling client for chem-server",
+  "description": "Job submitting client for chem-server",
   "main": "dist/main.cjs",
   "type": "module",
   "scripts": {

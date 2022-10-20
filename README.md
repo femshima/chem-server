@@ -47,7 +47,7 @@ These steps are for the computer where the actual calculation is done.
 
 1. Get GAMESS source code for linux, and place it under `./gamess`(it should look like `./gamess/gamess-current.tar.gz`)
 1. Get latest OpenBLAS source code, and place it under `./gamess`(it should look like `./gamess/OpenBLAS-0.3.21.tar.gz`)
-1. Build docker image(This will take few minutes, depending on your machine spec)
+1. Build docker image(This will take a few minutes, depending on your machine spec)
 
    ```bash
    docker build gamess -t gamess --build-arg OPENBLAS=<The version of OpenBLAS you want to use(for example, 0.3.21)>
@@ -63,7 +63,7 @@ These steps are for the computer where the actual calculation is done.
    ```
 
 1. Create `.env` and write `API_KEY` and `API_ENDPOINT`.
-   `API_KEY` should be same as you set in the server,
+   `API_KEY` should be the same as what you set in the server,
    and `API_ENDPOINT` is the url to your server.
 
    ```bash

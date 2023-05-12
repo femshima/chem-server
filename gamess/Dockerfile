@@ -16,7 +16,7 @@ RUN apt-get update \
 
 FROM builder-base AS openblas
 
-ARG OPENBLAS=0.3.21
+ARG OPENBLAS=0.3.23
 
 WORKDIR /opt
 

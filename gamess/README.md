@@ -33,3 +33,9 @@ This folder contains Dockerfile for GAMESS.
     "type": "Local"
 }
 ```
+
+## Copyright
+
+rungms.MPI was originally copied from
+[rangsimanketkaew/QM-on-TAIWANIA](https://github.com/rangsimanketkaew/QM-on-TAIWANIA)
+and modified. Please see NOTICE file for full text of license.

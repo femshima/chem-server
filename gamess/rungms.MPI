@@ -1,0 +1,133 @@
+#!/bin/csh
+
+# rungms.MPI is a rungms-like script for executing GAMESS calculation on
+# distributed memory parallel system using MPI protocol.
+#
+# This script is tested on TAIWANIA cluster, NCHC, Taiwan, Intel Xeon 
+# cluster equiped with Intel Omni-Path high-speed interconnect.
+# GAMESS on TAIWANIA was built with Intel Parallel Studio XE 2018 update 1
+# and Intel Math Kernel Library (MKL) and Intel MPI library.
+#
+# Updated 20180708  Rangsiman Ketkaew  rangsiman1993@gmail.com
+# https://github.com/rangsimanketkaew/QM-on-TAIWANIA/
+###########################################################################
+
+#      All welcome messages, general infomation, program resource, 
+#      CPU timing summary, and job summary woule not be printed 
+#      because this is not real rungms.
+
+echo "/*****************************************************************************"
+echo "This calculation was carried out by GAMESS program package executed by using"
+echo "subgmsmpi program and rungms.MPI script, written by Rangsiman Ketkaew"
+echo "Computational Chemistry Research Unit, Department of Chemistry,"
+echo "Faculty of Science and Technology, Thammasat University, Thailand."
+echo "rangsiman1993@gmail.com and https://github.com/rangsimanketkaew/QM-on-TAIWANIA"
+echo "*****************************************************************************/"
+echo ""
+
+#      TARGET is normally set to mpi in order to enable MPI method.
+#      SCR & USERSCR directories are set to directory where is
+#      network shared-file system, which large enough to store the 
+#      temporary scratch files.
+
+set TARGET=mpi
+set SCR=/home/gamess/scr
+set USERSCR=/home/gamess/userscr
+set GMSPATH=/usr/local/bin/gamess
+
+echo "Configuration and Settings created by rungms.MPI script."
+echo "========================================================"
+echo "TARGET  is set to $TARGET"
+echo "SCR     is set to $SCR"
+echo "USERSCR is set to $USERSCR"
+echo "GMSPATH is set to $GMSPATH"
+echo ""
+
+#      USER-defined MPI executable. Default setting is 'mpiexec' of 
+#      Intel Studio Suite 2018
+
+set CHECK_MPI = `which mpirun`
+
+if ( -e $CHECK_MPI ) then
+  set MPIEXE = "$CHECK_MPI"
+  echo "MPI executable is $MPIEXE"
+  echo ""
+else 
+  echo "Error: Intel MPI executable 'mpiexec.hydra' not found."
+  echo "This GAMESS runtime was built with Intel compiler and Intel MPI library."
+  echo "please purge all loaded module and load Intel module, e.g. 'intel/2018_u1'."
+  echo "If you have problem about Intel MPI, please talk to admin/staff of HPC."
+  exit 1
+endif
+
+#      The following command lines are carefuly extracted from the 
+#      original rungms. Please carefully modify the code in case
+#      you want to change the default setting. However, the default
+#      setting is the best solution.
+
+set GET_JOB=$1
+set VERNO=$2
+set NCPUS=$3
+
+echo "Assgined input file    is $GET_JOB"
+echo "GAMESS program version is $VERNO"
+echo "Number of processors   is $NCPUS"
+echo ""
+
+set JOB = `basename $GET_JOB .inp`
+set JOB_PATH=`dirname $FULL_PATH`
+
+#      Copy input to scratch directory.
+#      and define the path of all relavant files.
+
+cp $JOB.inp $SCR/$JOB.F05
+
+setenv INPUT $SCR/$JOB.F05
+setenv TRAJECT $USERSCR/$JOB.trj
+setenv RESTART $USERSCR/$JOB.rst
+setenv DATA $USERSCR/$JOB.dat
+setenv PUNCH $USERSCR/$JOB.pch
+
+echo "Following environment variables were set by SETENV command."
+echo '$INPUT  ' "Input file      is $INPUT"
+echo '$TRAJECT' "Trajectory file is $TRAJECT"
+echo '$RESTART' "Restarting file is $RESTART"
+echo '$DATA   ' "Data file       is $DATA"
+echo '$PUNCH  ' "PUNCH file      is $PUNCH"
+
+#      Delete trajectory and scratch files of previous calculation.
+
+if ( -e $TRAJECT ) then
+  rm $TRAJECT
+  echo "$TRAJECT of previous calculation has been deleted."
+endif
+if ( -e $RESTART ) then
+  rm $RESTART
+  echo "$RESTART of previous calculation has been deleted."
+endif
+if ( -e $DATA ) then
+  rm $DATA
+  echo "$DATA of previous calculation has been deleted."
+endif
+
+echo ""
+
+if ( ! -e $GMSPATH/gms-files.csh ) then
+  echo "Error: gms-files.csh not found in $GMSPATH directory."
+  exit 1
+endif
+
+source $GMSPATH/gms-files.csh
+
+echo "GAMESS execute command: $MPIEXE -n $NCPUS $GMSPATH/gamess.$VERNO.x $INPUT"
+echo ""
+
+#      GAMESS is clever to recognize input file from $JOB environment variable.
+#      Print of output will be defined in submission script of server scheduler.
+#      Normally, as default setting, base name of input will be used to name
+#      output automatically.
+
+$MPIEXE -n $NCPUS $GMSPATH/gamess.$VERNO.x 
+
+#      For run quick test on front-end node, the above command is validate.
+

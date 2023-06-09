@@ -75,12 +75,12 @@ echo "Number of processors   is $NCPUS"
 echo ""
 
 set JOB = `basename $GET_JOB .inp`
-set JOB_PATH=`dirname $FULL_PATH`
+set JOB_PATH = `dirname $GET_JOB`
 
 #      Copy input to scratch directory.
 #      and define the path of all relavant files.
 
-cp $JOB.inp $SCR/$JOB.F05
+cp $JOB_PATH/$JOB.inp $SCR/$JOB.F05
 
 setenv INPUT $SCR/$JOB.F05
 setenv TRAJECT $USERSCR/$JOB.trj

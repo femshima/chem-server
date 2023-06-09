@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir -p "/home/gamess/user"
+
 cat > "/home/gamess/user/gms.inp"
 
 /usr/local/bin/rungms.MPI "/home/gamess/user/gms.inp" 00 $1

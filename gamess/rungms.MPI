@@ -35,6 +35,9 @@ set SCR=/home/gamess/scr
 set USERSCR=/home/gamess/userscr
 set GMSPATH=/usr/local/bin/gamess
 
+mkdir -p $SCR
+mkdir -p $USERSCR
+
 echo "Configuration and Settings created by rungms.MPI script."
 echo "========================================================"
 echo "TARGET  is set to $TARGET"

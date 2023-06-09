@@ -108,5 +108,5 @@ WORKDIR /home/gamess
 
 RUN cat /usr/local/bin/gamess/install.info
 
-ENTRYPOINT [ "/usr/local/bin/rungms.MPI" ]
+ENTRYPOINT [ "/usr/local/bin/gms-docker" ]
 
